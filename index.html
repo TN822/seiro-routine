@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="せいろルーティン">
+<meta name="theme-color" content="#1C2B1E">
+<title>せいろルーティン</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: #F7F3EE; font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; padding-bottom: 40px; }
+
+.header {
+background: #1C2B1E;
+padding: 52px 20px 16px;
+position: sticky; top: 0; z-index: 10;
+}
+.header-sub { font-size: 10px; color: #57CC99; letter-spacing: 3px; margin-bottom: 4px; }
+.header-title { font-size: 18px; color: #F7F3EE; font-weight: 700; margin-bottom: 14px; }
+
+.tabs { display: flex; gap: 6px; }
+.tab {
+flex: 1; padding: 8px 4px; border-radius: 8px; border: none;
+cursor: pointer; font-size: 11px; font-family: ‘Noto Sans JP’, sans-serif;
+font-weight: 400; background: rgba(255,255,255,0.08); color: #aaa;
+transition: all 0.2s;
+}
+.tab.active { background: #57CC99; color: #1C2B1E; font-weight: 700; }
+
+.content { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+
+.stat-card {
+background: #1C2B1E; border-radius: 14px; padding: 14px 18px;
+margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+}
+.stat-label { font-size: 12px; color: #aaa; margin-bottom: 4px; }
+.stat-value { font-size: 26px; color: #57CC99; font-weight: 700; }
+.stat-sub { font-size: 13px; color: #666; }
+
+.section-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; }
+
+.card { background: #fff; border-radius: 14px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+
+.item {
+display: flex; align-items: center; padding: 13px 16px;
+border-bottom: 1px solid #F0EDE8; cursor: pointer; transition: opacity 0.2s;
+}
+.item:last-child { border-bottom: none; }
+.item.done { opacity: 0.4; }
+
+.checkbox {
+width: 20px; height: 20px; border-radius: 6px; border: 2px solid #DDD;
+margin-right: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+transition: all 0.2s;
+}
+.checkbox.checked { border-color: currentColor; background: currentColor; }
+.checkbox.checked::after { content: ‘✓’; color: #fff; font-size: 11px; }
+
+.item-name { font-size: 14px; font-weight: 700; }
+.item.done .item-name { text-decoration: line-through; }
+.item-note { font-size: 11px; color: #999; margin-top: 2px; }
+
+.prep-card {
+background: #fff; border-radius: 14px; margin-bottom: 10px;
+box-shadow: 0 1px 8px rgba(0,0,0,0.06); overflow: hidden; cursor: pointer; transition: opacity 0.2s;
+}
+.prep-card.done { opacity: 0.5; }
+.prep-header {
+display: flex; align-items: center; padding: 12px 16px;
+border-bottom: 1px solid #F0EDE8; transition: background 0.2s;
+}
+.prep-card.done .prep-header { background: #F0EDE8; }
+.prep-icon { font-size: 20px; margin-right: 10px; }
+.prep-task { font-size: 14px; font-weight: 700; }
+.prep-meta { font-size: 11px; color: #999; margin-top: 2px; }
+.prep-circle {
+width: 22px; height: 22px; border-radius: 11px; border: 2px solid #DDD;
+margin-left: auto; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+transition: all 0.2s;
+}
+.prep-circle.done { border-color: currentColor; background: currentColor; }
+.prep-circle.done::after { content: ‘✓’; color: #fff; font-size: 12px; }
+.prep-detail { padding: 10px 16px; font-size: 12px; color: #777; line-height: 1.8; white-space: pre-line; }
+
+.flow-item {
+display: flex; align-items: flex-start; padding: 14px 16px;
+border-bottom: 1px solid #F0EDE8; gap: 14px;
+}
+.flow-item:last-child { border-bottom: none; }
+.flow-step-label {
+font-size: 10px; color: #fff; background: #1C2B1E;
+border-radius: 6px; padding: 3px 6px; font-weight: 700; text-align: center; white-space: nowrap;
+}
+.flow-time { font-size: 10px; color: #aaa; margin-top: 4px; text-align: center; }
+.flow-action { font-size: 13px; color: #333; line-height: 1.6; padding-top: 2px; }
+
+.menu-row {
+display: flex; align-items: center; gap: 10px;
+padding: 8px 0; border-bottom: 1px solid #F0EDE8;
+}
+.menu-row:last-child { border-bottom: none; }
+.menu-dot { width: 6px; height: 6px; border-radius: 3px; flex-shrink: 0; }
+.menu-text { font-size: 13px; color: #444; }
+
+.note-card {
+border-radius: 12px; padding: 14px 16px; font-size: 12px;
+color: #888; line-height: 1.9; margin-top: 4px;
+}
+.note-title { font-weight: 700; margin-bottom: 6px; }
+
+.progress-bar { height: 4px; background: #E0E0E0; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: #57CC99; border-radius: 2px; transition: width 0.4s; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+</style>
+
+</head>
+<body>
+
+<div class="header">
+  <div class="header-sub">LDL改善プログラム</div>
+  <div class="header-title">業スー買い物＆仕込みルーティン</div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('shopping')">🛒 買い物リスト</button>
+    <button class="tab" onclick="switchTab('prep')">🔪 休日仕込み</button>
+    <button class="tab" onclick="switchTab('weekday')">⚡ 平日フロー</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- SHOPPING TAB -->
+
+  <div id="tab-shopping" class="tab-content active">
+    <div class="stat-card">
+      <div>
+        <div class="stat-label">チェック済み</div>
+        <div class="stat-value" id="check-count">0 <span class="stat-sub">/ 22</span></div>
+      </div>
+      <div>
+        <div class="stat-label">予算目安</div>
+        <div style="font-size:18px;color:#F4A261;font-weight:700;">¥4,500〜5,000</div>
+        <div style="font-size:11px;color:#666;">/週</div>
+      </div>
+    </div>
+    <div class="progress-bar" style="margin-bottom:20px;">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+```
+<div id="shopping-list"></div>
+
+<div class="note-card" style="background:#FFF8E7;border-left:3px solid #F4A261;">
+  💰 予算目安：約4,500〜5,000円 / 週<br>
+  ⏱ 買い物所要時間：約20〜30分
+</div>
+```
+
+  </div>
+
+  <!-- PREP TAB -->
+
+  <div id="tab-prep" class="tab-content">
+    <div class="stat-card" style="flex-direction:column;align-items:flex-start;">
+      <div class="stat-label">休日仕込み総時間（実働）</div>
+      <div style="font-size:28px;color:#F4A261;font-weight:700;">約30分</div>
+      <div style="font-size:11px;color:#777;margin-top:4px;">14:00 スタート → 15:00 完了</div>
+    </div>
+
+```
+<div id="prep-list"></div>
+
+<div class="note-card" style="background:#E8F5E9;border-left:3px solid #57CC99;color:#555;">
+  <div class="note-title" style="color:#2E7D32;">📦 仕込み完了後の収納状態</div>
+  🧊 冷凍：野菜小分けパック×5・玄米ラップ×10・鶏むね残り<br>
+  ❄️ 冷蔵：鶏むね下味済み×3日分・ゆで卵×5個・解凍鮭×3切れ
+</div>
+```
+
+  </div>
+
+  <!-- WEEKDAY TAB -->
+
+  <div id="tab-weekday" class="tab-content">
+    <div class="stat-card" style="flex-direction:column;align-items:flex-start;">
+      <div class="stat-label">平日夜の調理時間</div>
+      <div style="font-size:28px;color:#00B4D8;font-weight:700;">15分 <span class="stat-sub">で夕食完成</span></div>
+    </div>
+
+```
+<div class="card" id="flow-list"></div>
+
+<div class="card" style="padding:16px;margin-bottom:16px;">
+  <div style="font-size:12px;font-weight:700;color:#1C2B1E;margin-bottom:12px;letter-spacing:1px;">🌙 平日夜の完成メニュー</div>
+  <div class="menu-row"><div class="menu-dot" style="background:#F4A261;"></div><div class="menu-text">玄米（冷凍→レンジ2分）</div></div>
+  <div class="menu-row"><div class="menu-dot" style="background:#00B4D8;"></div><div class="menu-text">せいろ蒸し（鶏 or 鮭＋野菜）</div></div>
+  <div class="menu-row"><div class="menu-dot" style="background:#57CC99;"></div><div class="menu-text">納豆</div></div>
+  <div class="menu-row"><div class="menu-dot" style="background:#A8DADC;"></div><div class="menu-text">しじみ味噌汁（インスタント）</div></div>
+</div>
+
+<div class="note-card" style="background:#FFF0F0;border-left:3px solid #E76F51;color:#888;">
+  <div class="note-title" style="color:#E76F51;">🔄 月水金 vs 火木土</div>
+  月水金：冷凍鮭をせいろで蒸す<br>
+  火木土：サバ缶 or イワシ缶をそのまま出す（調理ゼロ）
+</div>
+```
+
+  </div>
+
+</div>
+
+<script>
+const shopping = [
+  { category: "🐟 タンパク質", color: "#00B4D8", items: [
+    { name: "冷凍鶏むね肉", amount: "2kg", note: "平日5日分＋余裕" },
+    { name: "冷凍鮭", amount: "600g（6切れ）", note: "月水金の夜用" },
+    { name: "サバ缶 or イワシ缶", amount: "6缶", note: "火木土の夜用" },
+    { name: "卵", amount: "10個パック", note: "昼のゆで卵用" },
+    { name: "納豆", amount: "まとめパック", note: "毎日夜用" },
+  ]},
+  { category: "🥦 野菜・冷凍", color: "#57CC99", items: [
+    { name: "冷凍ブロッコリー", amount: "大袋1kg", note: "せいろ定番" },
+    { name: "冷凍パプリカ", amount: "500g", note: "せいろ定番" },
+    { name: "冷凍ほうれん草", amount: "500g", note: "味噌汁・副菜" },
+    { name: "冷凍きのこミックス", amount: "500g", note: "せいろ追加枠" },
+    { name: "玉ねぎ", amount: "ネット袋", note: "汁物・副菜" },
+  ]},
+  { category: "🍚 主食", color: "#F4A261", items: [
+    { name: "玄米", amount: "2kg", note: "週まとめ炊き" },
+    { name: "オートミール", amount: "500g〜1kg", note: "毎朝用" },
+  ]},
+  { category: "🫙 調味料・常備品", color: "#E76F51", items: [
+    { name: "豆乳（無調整）", amount: "1L×2", note: "朝のオートミール用" },
+    { name: "冷凍ブルーベリー", amount: "500g", note: "朝のトッピング" },
+    { name: "ギリシャヨーグルト", amount: "大容量", note: "朝食用" },
+    { name: "バナナ", amount: "1房", note: "朝食用" },
+    { name: "ポン酢", amount: "1本", note: "せいろのタレ" },
+    { name: "塩麹 or 酒＋塩", amount: "適量", note: "下味用" },
+    { name: "おろし生姜（チューブ）", amount: "1本", note: "タレ用" },
+    { name: "しじみ味噌汁（インスタント）", amount: "1箱", note: "夜の汁物" },
+  ]},
+];
+
+const prepSteps = [
+  { time: "14:00", duration: "10分", task: "玄米を炊飯器にセット", detail: "2〜3合まとめて炊く。炊けたら小分けにしてラップ冷凍。平日は電子レンジ2分で完成。", icon: "🍚", color: "#F4A261" },
+  { time: "14:10", duration: "5分", task: "鶏むね肉の下味仕込み", detail: "5日分（500g）を一口大に切り、酒大さじ2＋塩少々でジップロックに入れて冷蔵保存。3日以上は冷凍へ。", icon: "🐓", color: "#00B4D8" },
+  { time: "14:15", duration: "5分", task: "冷凍鮭を冷蔵庫へ移す", detail: "月水金分（3切れ）を冷蔵庫に移して解凍開始。残りは冷凍のまま保管。", icon: "🐟", color: "#00B4D8" },
+  { time: "14:20", duration: "10分", task: "せいろ用小分けパック作り", detail: "ブロッコリー・パプリカ・きのこを1食分ずつジップロック小袋に分ける（5袋）。平日は袋からそのまませいろに入れるだけ。", icon: "🥦", color: "#57CC99" },
+  { time: "14:30", duration: "5分", task: "ゆで卵を5個まとめて作る", detail: "鍋に水から卵を入れ沸騰後8分。冷水で冷やして殻ごと冷蔵保存（5日持つ）。平日昼に1個使うだけ。", icon: "🥚", color: "#E9C46A" },
+  { time: "14:35", duration: "待機", task: "玄米炊き上がり待ち", detail: "炊き上がったらラップで1食分（150g）ずつ包んで冷凍。平日の夜は冷凍玄米をレンジで温めるだけ。", icon: "⏳", color: "#A8DADC" },
+  { time: "15:00", duration: "完了", task: "冷蔵・冷凍に収納して完了", detail: "【冷蔵】鶏むね下味済み・ゆで卵・解凍鮭3切れ\n【冷凍】野菜小分けパック5袋・鶏むね残り・冷凍鮭残り・冷凍玄米", icon: "✅", color: "#57CC99" },
+];
+
+const weekdayFlow = [
+  { step: "帰宅", action: "鍋に水を入れ火にかける", time: "0分" },
+  { step: "2分後", action: "野菜パックをせいろに入れる＋鶏 or 鮭をのせる", time: "2分" },
+  { step: "10分後", action: "冷凍玄米をレンジへ・しじみ汁にお湯を注ぐ", time: "10分" },
+  { step: "12分後", action: "せいろから出してポン酢タレをかける", time: "12分" },
+  { step: "完成", action: "玄米＋せいろ蒸し＋納豆＋しじみ汁", time: "15分" },
+];
+
+const TOTAL = shopping.reduce((a,c)=>a+c.items.length,0);
+let checked = JSON.parse(localStorage.getItem('seiro-checked')||'{}');
+let prepDone = JSON.parse(localStorage.getItem('seiro-prep')||'{}');
+
+function saveChecked(){ localStorage.setItem('seiro-checked', JSON.stringify(checked)); }
+function savePrep(){ localStorage.setItem('seiro-prep', JSON.stringify(prepDone)); }
+
+function updateProgress(){
+  const count = Object.values(checked).filter(Boolean).length;
+  document.getElementById('check-count').innerHTML = count + ' <span class="stat-sub">/ ' + TOTAL + '</span>';
+  document.getElementById('progress-fill').style.width = (count/TOTAL*100) + '%';
+}
+
+function renderShopping(){
+  const el = document.getElementById('shopping-list');
+  el.innerHTML = shopping.map(cat => `
+    <div style="margin-bottom:20px;">
+      <div class="section-title" style="color:${cat.color};">${cat.category}</div>
+      <div class="card">
+        ${cat.items.map((item,i) => {
+          const key = cat.category+'-'+i;
+          const done = checked[key];
+          return `<div class="item ${done?'done':''}" onclick="toggleCheck('${key}')">
+            <div class="checkbox ${done?'checked':''}" style="color:${cat.color};"></div>
+            <div style="flex:1;">
+              <div class="item-name">${item.name}</div>
+              <div class="item-note">${item.amount}　${item.note}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+  updateProgress();
+}
+
+function renderPrep(){
+  const el = document.getElementById('prep-list');
+  el.innerHTML = prepSteps.map((step,i) => {
+    const done = prepDone[i];
+    return `<div class="prep-card ${done?'done':''}" onclick="togglePrep(${i})">
+      <div class="prep-header">
+        <span class="prep-icon">${step.icon}</span>
+        <div style="flex:1;">
+          <div class="prep-task">${step.task}</div>
+          <div class="prep-meta">${step.time}　${step.duration}</div>
+        </div>
+        <div class="prep-circle ${done?'done':''}" style="color:${step.color};"></div>
+      </div>
+      <div class="prep-detail">${step.detail}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFlow(){
+  const el = document.getElementById('flow-list');
+  el.innerHTML = weekdayFlow.map((f,i) => `
+    <div class="flow-item">
+      <div style="min-width:44px;">
+        <div class="flow-step-label">${f.step}</div>
+        <div class="flow-time">${f.time}</div>
+      </div>
+      <div class="flow-action">${f.action}</div>
+    </div>
+  `).join('');
+}
+
+function toggleCheck(key){
+  checked[key] = !checked[key];
+  saveChecked();
+  renderShopping();
+}
+
+function togglePrep(i){
+  prepDone[i] = !prepDone[i];
+  savePrep();
+  renderPrep();
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+renderShopping();
+renderPrep();
+renderFlow();
+</script>
+
+</body>
+</html>
